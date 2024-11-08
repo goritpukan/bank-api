@@ -1,9 +1,33 @@
-model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  firstName  String
-  lastName String
+enum Role {
+  USER
+  ADMIN
 }
+
+enum Currency {
+  UAH
+  USD
+  EUR
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  firstName   String
+  lastName    String
+  password    String
+  role        Role          @default(USER)
+  BankAccount BankAccount[]
+}
+
+model BankAccount {
+  id            Int      @id @default(autoincrement())
+  accountNumber String   @unique
+  balance       Float
+  currency      Currency @default(UAH)
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 generator client {
   provider = "prisma-client-js"
 }
