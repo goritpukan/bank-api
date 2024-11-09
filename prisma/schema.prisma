@@ -1,14 +1,3 @@
-enum Role {
-  USER
-  ADMIN
-}
-
-enum Currency {
-  UAH
-  USD
-  EUR
-}
-
 model User {
   id          Int           @id @default(autoincrement())
   email       String        @unique
@@ -20,12 +9,46 @@ model User {
 }
 
 model BankAccount {
-  id            Int      @id @default(autoincrement())
-  accountNumber String   @unique
-  balance       Float
-  currency      Currency @default(UAH)
+  id            Int           @id @default(autoincrement())
+  accountNumber String        @unique
+  balance       Float         @default(0)
+  currency      Currency      @default(UAH)
   userId        Int
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Transaction   Transaction[]
+}
+
+model Transaction {
+  id              Int             @id @default(autoincrement())
+  amount          Float
+  currency        Currency
+  transactionType TransactionType
+  timestamp       DateTime        @default(now())
+  sourceType      SourceType
+  sourceAccountId Int?
+  bankAccountId   Int
+  bankAccount     BankAccount     @relation(fields: [bankAccountId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Currency {
+  UAH
+  USD
+  EUR
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum SourceType {
+  ATM
+  ACCOUNT
 }
 
 generator client {
