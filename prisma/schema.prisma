@@ -5,6 +5,7 @@ model User {
   lastName    String
   password    String
   role        Role          @default(USER)
+  isBanned    Boolean       @default(false)
   BankAccount BankAccount[]
 }
 

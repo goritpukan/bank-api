@@ -1,34 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Request, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import {User} from '@prisma/client';
+import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AdminGuard } from '../guards/admin.guard';
+import { AuthGuard } from '../guards/auth.guard';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @ApiOperation({summary: "Get all users"})
+  @ApiOperation({summary: "Get all users (Only for admin)"})
+  @UseGuards(AuthGuard, AdminGuard)
+  @ApiCookieAuth('access_token')
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
-  @ApiOperation({summary: "Get user by id"})
+  @ApiOperation({summary: "Get user by id (Only for admin)"})
+  @UseGuards(AuthGuard, AdminGuard)
+  @ApiCookieAuth('access_token')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
 
-  @ApiOperation({summary: "Update user by id"})
+  @ApiOperation({summary: "Update user by id (Only for admin)"})
+  @UseGuards(AuthGuard, AdminGuard)
+  @ApiCookieAuth('access_token')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 
-  @ApiOperation({summary: "Delete user"})
+  @ApiOperation({summary: "Delete user (Only for admin)"})
+  @UseGuards(AuthGuard, AdminGuard)
+  @ApiCookieAuth('access_token')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
+  }
+  @ApiOperation({summary: "Ban user (Only for admin)"})
+  @UseGuards(AuthGuard, AdminGuard)
+  @ApiCookieAuth('access_token')
+  @Patch('ban/:id')
+  ban(@Param('id') id: string) {
+
   }
 }
