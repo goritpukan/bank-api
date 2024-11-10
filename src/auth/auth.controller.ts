@@ -12,7 +12,7 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        email: {type: 'string', example: 'email@gmail.com'},
+        email: {type: 'string', example: 'user@example.com'},
         password: {type: 'string', example: 'password'},
       },
       required:['email', 'password'],
@@ -28,8 +28,8 @@ export class AuthController {
     return this.authService.signup(createUserDto, res);
   }
 
-  @Delete('loguot')
-  logout() {
-    this.authService.logout();
+  @Delete('logout')
+  logout(@Res() res: Response) {
+    return this.authService.logout(res);
   }
 }

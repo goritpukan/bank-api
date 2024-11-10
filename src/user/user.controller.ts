@@ -40,11 +40,19 @@ export class UserController {
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
-  @ApiOperation({summary: "Ban user (Only for admin)"})
+  @ApiOperation({summary: "Block user (Only for admin)"})
   @UseGuards(AuthGuard, AdminGuard)
   @ApiCookieAuth('access_token')
-  @Patch('ban/:id')
-  ban(@Param('id') id: string) {
-
+  @Patch('block/:id')
+  block(@Param('id') id: string) {
+    return this.userService.block(+id);
   }
+  @ApiOperation({summary: "Unblock user (Only for admin)"})
+  @UseGuards(AuthGuard, AdminGuard)
+  @ApiCookieAuth('access_token')
+  @Patch('unblock/:id')
+  unblock(@Param('id') id: string) {
+    return this.userService.unblock(+id);
+  }
+
 }

@@ -5,15 +5,16 @@ model User {
   lastName    String
   password    String
   role        Role          @default(USER)
-  isBanned    Boolean       @default(false)
+  isBlocked   Boolean       @default(false)
   BankAccount BankAccount[]
 }
 
 model BankAccount {
   id            Int           @id @default(autoincrement())
-  accountNumber String        @unique
+  accountNumber String        @unique @db.VarChar(16)
   balance       Float         @default(0)
   currency      Currency      @default(UAH)
+  isBlocked     Boolean       @default(false)
   userId        Int
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   Transaction   Transaction[]
