@@ -10,26 +10,30 @@ model User {
 }
 
 model BankAccount {
-  id            Int           @id @default(autoincrement())
-  accountNumber String        @unique @db.VarChar(16)
-  balance       Float         @default(0)
-  currency      Currency      @default(UAH)
-  isBlocked     Boolean       @default(false)
-  userId        Int
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Transaction   Transaction[]
+  id                   Int           @id @default(autoincrement())
+  accountNumber        String        @unique @db.VarChar(16)
+  balance              Float         @default(0)
+  currency             Currency      @default(UAH)
+  isBlocked            Boolean       @default(false)
+  userId               Int
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sentTransactions     Transaction[] @relation("SourceAccount")
+  receivedTransactions Transaction[] @relation("DestinationAccount")
 }
 
 model Transaction {
-  id              Int             @id @default(autoincrement())
-  amount          Float
-  currency        Currency
-  transactionType TransactionType
-  timestamp       DateTime        @default(now())
-  sourceType      SourceType
-  sourceAccountId Int?
-  bankAccountId   Int
-  bankAccount     BankAccount     @relation(fields: [bankAccountId], references: [id])
+  id                Int             @id @default(autoincrement())
+  amount            Float
+  currency          Currency
+  transactionType   TransactionType
+  convertedAmount   Float?
+  convertedCurrency Currency?
+
+  sourceAccountId      Int?
+  destinationAccountId Int
+
+  sourceAccount      BankAccount? @relation("SourceAccount", fields: [sourceAccountId], references: [id], onDelete: Cascade)
+  destinationAccount BankAccount  @relation("DestinationAccount", fields: [destinationAccountId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
@@ -44,13 +48,9 @@ enum Currency {
 }
 
 enum TransactionType {
-  DEPOSIT
+  TRANSFER
   WITHDRAWAL
-}
-
-enum SourceType {
-  ATM
-  ACCOUNT
+  DEPOSIT
 }
 
 generator client {
