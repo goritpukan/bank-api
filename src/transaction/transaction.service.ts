@@ -8,6 +8,8 @@ import { BankAccountService } from '../bank-account/bank-account.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { TransactionType } from '@prisma/client';
 import { CurrencyService } from '../currency/currency.service';
+import { Decimal } from 'decimal.js';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 @Injectable()
 export class TransactionService {
@@ -18,6 +20,7 @@ export class TransactionService {
   ) {}
 
   async createTransfer(createTransferDto: CreateTransferDto, user: any) {
+    await this.bankAccountService.checkUserBlock(user);
     const sourceAccount = await this.bankAccountService.findOne(
       createTransferDto.sourceAccountNumber,
       user,
@@ -34,20 +37,27 @@ export class TransactionService {
       );
     }
 
-    let transferAmount: number = createTransferDto.transferAmount;
+    let transferAmount: Decimal = new Decimal(createTransferDto.transferAmount);
+    let convertedTransferAmount: Decimal;
+    let isConverted: boolean = false;
     if (sourceAccount.currency !== destinationAccount.currency) {
-      transferAmount = await this.currencyService.convert(
+      const rawConvertedTransferAmount = await this.currencyService.convert(
         sourceAccount.currency,
         destinationAccount.currency,
         createTransferDto.transferAmount,
       );
+      convertedTransferAmount = new Decimal(rawConvertedTransferAmount);
+      isConverted = true;
     }
+
     await this.prismaService.bankAccount.update({
       where: {
         accountNumber: createTransferDto.sourceAccountNumber,
       },
       data: {
-        balance: sourceAccount.balance - createTransferDto.transferAmount,
+        balance: new Decimal(sourceAccount.balance)
+          .minus(transferAmount)
+          .toNumber(),
       },
     });
     await this.prismaService.bankAccount.update({
@@ -55,9 +65,16 @@ export class TransactionService {
         accountNumber: createTransferDto.destinationAccountNumber,
       },
       data: {
-        balance: destinationAccount.balance + transferAmount,
+        balance: isConverted
+          ? new Decimal(destinationAccount.balance)
+              .plus(convertedTransferAmount)
+              .toNumber()
+          : new Decimal(destinationAccount.balance)
+              .plus(transferAmount)
+              .toNumber(),
       },
     });
+
     return this.prismaService.transaction.create({
       data: {
         sourceAccount: {
@@ -67,10 +84,46 @@ export class TransactionService {
           connect: { id: destinationAccount.id },
         },
         currency: sourceAccount.currency,
-        amount: createTransferDto.transferAmount,
-        convertedCurrency: destinationAccount.currency,
-        convertedAmount: transferAmount,
+        amount: transferAmount.toNumber(),
+        convertedCurrency: isConverted ? destinationAccount.currency : null,
+        convertedAmount: isConverted
+          ? convertedTransferAmount.toNumber()
+          : null,
         transactionType: TransactionType.TRANSFER,
+      },
+    });
+  }
+
+  async createTransaction(
+    accountNumber: string,
+    user: any,
+    createTransactionDto: CreateTransactionDto,
+  ) {
+    await this.bankAccountService.checkUserBlock(user);
+    const bankAccount = await this.bankAccountService.findOne(
+      accountNumber,
+      user,
+    );
+
+    const decimalBalance = new Decimal(bankAccount.balance);
+    const decimalTransferAmount = new Decimal(
+      createTransactionDto.transferAmount,
+    );
+
+    const newBalance = createTransactionDto.transactionType === 'DEPOSIT'
+        ? decimalBalance.plus(decimalTransferAmount).toNumber()
+        : decimalBalance.minus(decimalTransferAmount).toNumber();
+
+    await this.prismaService.bankAccount.update({
+      where: { accountNumber },
+      data: { balance: newBalance },
+    });
+    return this.prismaService.transaction.create({
+      data: {
+        amount: createTransactionDto.transferAmount,
+        currency: bankAccount.currency,
+        transactionType: createTransactionDto.transactionType,
+        destinationAccountId: bankAccount.id,
       },
     });
   }

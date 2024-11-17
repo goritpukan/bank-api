@@ -49,7 +49,7 @@ enum Currency {
 
 enum TransactionType {
   TRANSFER
-  WITHDRAWAL
+  WITHDRAW
   DEPOSIT
 }
 

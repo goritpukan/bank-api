@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsString, Matches } from 'class-validator';
-import { Currency } from '@prisma/client';
+import { IsNotEmpty, IsNumber, IsString, Matches } from 'class-validator';
 
 export class CreateTransferDto {
   @ApiProperty({description: "Account number from which the transfer is made", example:"1234111111111111"})
