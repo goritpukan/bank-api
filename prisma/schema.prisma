@@ -7,6 +7,7 @@ model User {
   role        Role          @default(USER)
   isBlocked   Boolean       @default(false)
   BankAccount BankAccount[]
+  Deposit     Deposit[]
 }
 
 model BankAccount {
@@ -34,6 +35,16 @@ model Transaction {
 
   sourceAccount      BankAccount? @relation("SourceAccount", fields: [sourceAccountId], references: [id], onDelete: Cascade)
   destinationAccount BankAccount  @relation("DestinationAccount", fields: [destinationAccountId], references: [id], onDelete: Cascade)
+}
+
+model Deposit {
+  id           Int      @id @default(autoincrement())
+  balance      Float?   @default(0)
+  currency     Currency
+  interestRate Float    @default(5)
+  startDate    DateTime @default(now())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

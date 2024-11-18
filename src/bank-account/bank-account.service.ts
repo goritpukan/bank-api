@@ -20,7 +20,6 @@ export class BankAccountService {
   async create(userId: number, createBankAccountDto: CreateBankAccountDto) {
     const user = await this.userService.findOne(userId);
     if (user.isBlocked) throw new ForbiddenException('You are blocked');
-    if (!user) throw new NotFoundException('User does not exist');
     const latestAccount = await this.prisma.bankAccount.findFirst({
       orderBy: { accountNumber: 'desc' },
     });

@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { CurrencyModule } from './currency/currency.module';
+import { DepositModule } from './deposit/deposit.module';
 
 @Module({
-  imports: [UserModule, BankAccountModule, AuthModule, PrismaModule, TransactionModule, CurrencyModule],
+  imports: [UserModule, BankAccountModule, AuthModule, PrismaModule, TransactionModule, CurrencyModule, DepositModule],
   controllers: [AuthController],
   providers: [AuthService],
 })
