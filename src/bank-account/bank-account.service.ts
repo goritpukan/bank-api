@@ -67,6 +67,7 @@ export class BankAccountService {
   async remove(accountNumber: string, user: any) {
     await this.checkUserBlock(user);
     const account = await this.prisma.bankAccount.findUnique({ where: { accountNumber } });
+    if(account.isBlocked) throw new ForbiddenException('Account is blocked');
     this.checkAccessToAccount(account, user);
     return this.prisma.bankAccount.delete({ where: { accountNumber } });
   }

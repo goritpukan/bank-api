@@ -11,7 +11,6 @@ import { Role, TransactionType } from '@prisma/client';
 import { CurrencyService } from '../currency/currency.service';
 import { Decimal } from 'decimal.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { equals } from 'class-validator';
 
 @Injectable()
 export class TransactionService {
@@ -27,6 +26,7 @@ export class TransactionService {
       createTransferDto.sourceAccountNumber,
       user,
     );
+    if(sourceAccount.isBlocked) throw new ForbiddenException("Account is blocked");
     const destinationAccount = await this.prismaService.bankAccount.findUnique({
       where: { accountNumber: createTransferDto.destinationAccountNumber },
     });
@@ -106,6 +106,7 @@ export class TransactionService {
       accountNumber,
       user,
     );
+    if(bankAccount.isBlocked) throw new ForbiddenException("Account is blocked");
 
     const decimalBalance = new Decimal(bankAccount.balance);
     const decimalTransferAmount = new Decimal(
@@ -136,6 +137,20 @@ export class TransactionService {
       throw new ForbiddenException('You dont have access');
     }
     return this.prismaService.transaction.findMany({
+      where: {
+        OR: [
+          {
+            sourceAccount: {
+              userId: id,
+            },
+          },
+          {
+            destinationAccount: {
+              userId: id,
+            },
+          },
+        ],
+      },
       include: {
         sourceAccount: {
           select: {
