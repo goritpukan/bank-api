@@ -70,9 +70,12 @@ export class DepositService {
     return this.prismaService.deposit.update({where: {id}, data: { interestRate: updateInterestDto.interestRate }});
   }
 
-  async remove(id: number, user:any) {
+  async remove(id: number, reqUser:any) {
+    const user = await this.userService.findOne(reqUser.id);
+    if (user.isBlocked) throw new ForbiddenException('You are blocked');
+
     const deposit = await this.prismaService.deposit.findUnique({ where: { id } });
-    this.checkAccessToDeposit(deposit, user);
+    this.checkAccessToDeposit(deposit, reqUser);
     return this.prismaService.deposit.delete({ where: { id } });
   }
 

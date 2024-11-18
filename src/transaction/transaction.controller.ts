@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
@@ -24,5 +24,13 @@ export class TransactionController {
   @Post(':accountId')
   createDeposit(@Param('accountId') accountNumber: string, @Request() req: any, @Body() createTransactionDto: CreateTransactionDto) {
     return this.transactionService.createTransaction(accountNumber, req.user, createTransactionDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Show all user transactions by user id' })
+  @ApiCookieAuth('access_token')
+  @Get('/:id')
+  getTransactions(@Param('id') id: string, @Request() req: any) {
+    return this.transactionService.getTransactions(+id, req.user);
   }
 }

@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -6,10 +7,11 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { BankAccountService } from '../bank-account/bank-account.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
-import { TransactionType } from '@prisma/client';
+import { Role, TransactionType } from '@prisma/client';
 import { CurrencyService } from '../currency/currency.service';
 import { Decimal } from 'decimal.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { equals } from 'class-validator';
 
 @Injectable()
 export class TransactionService {
@@ -110,7 +112,8 @@ export class TransactionService {
       createTransactionDto.transferAmount,
     );
 
-    const newBalance = createTransactionDto.transactionType === 'DEPOSIT'
+    const newBalance =
+      createTransactionDto.transactionType === 'DEPOSIT'
         ? decimalBalance.plus(decimalTransferAmount).toNumber()
         : decimalBalance.minus(decimalTransferAmount).toNumber();
 
@@ -124,6 +127,34 @@ export class TransactionService {
         currency: bankAccount.currency,
         transactionType: createTransactionDto.transactionType,
         destinationAccountId: bankAccount.id,
+      },
+    });
+  }
+
+  async getTransactions(id: number, user: any) {
+    if (user.id != id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException('You dont have access');
+    }
+    return this.prismaService.transaction.findMany({
+      where: {
+        OR: [
+          { sourceAccountId: { not: null } },
+          { sourceAccountId: { not: null } },
+        ],
+      },
+      include: {
+        sourceAccount: {
+          select: {
+            accountNumber: true,
+            currency: true,
+          },
+        },
+        destinationAccount: {
+          select: {
+            accountNumber: true,
+            currency: true,
+          },
+        },
       },
     });
   }
