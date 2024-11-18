@@ -136,12 +136,6 @@ export class TransactionService {
       throw new ForbiddenException('You dont have access');
     }
     return this.prismaService.transaction.findMany({
-      where: {
-        OR: [
-          { sourceAccountId: { not: null } },
-          { sourceAccountId: { not: null } },
-        ],
-      },
       include: {
         sourceAccount: {
           select: {
