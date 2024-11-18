@@ -37,7 +37,7 @@ export class AuthService {
 
   logout(res: Response) {
     res.clearCookie('access_token');
-    res.status(200).json("logged out successfully");
+    res.status(200).json('logged out successfully');
   }
 
   private async createJwtCookie(res: Response, id: number, role: string) {

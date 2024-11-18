@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Post, Res } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
