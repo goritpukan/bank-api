@@ -8,6 +8,7 @@ This is FICE dev department (backend) test task.
 
 * Programing language: JS/TS
 * Framework: NestJS
+* Swagger
 * Database: PostgreSQL
 * ORM: Prisma
 * Accurate calculations: Decimal.js
@@ -59,4 +60,5 @@ npx prisma migrate dev --name init
 ```
 npm run start:prod
 ```
-
+## Swagger url
+http://localhost:3000/api
