@@ -6,12 +6,12 @@ enum AllowedTransactionType {
   WITHDRAW = 'WITHDRAW',
 }
 export class CreateTransactionDto {
-  @ApiProperty({description: "Transfer amount", example: 500})
+  @ApiProperty({ description: 'Transfer amount', example: 500 })
   @IsNotEmpty()
   @IsNumber()
   transferAmount: number;
 
-  @ApiProperty({description: "transfer type", enum: AllowedTransactionType})
+  @ApiProperty({ description: 'transfer type', enum: AllowedTransactionType })
   @IsNotEmpty()
   @IsEnum(AllowedTransactionType)
   transactionType: TransactionType;

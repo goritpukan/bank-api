@@ -29,20 +29,28 @@ export class DepositService {
     });
   }
 
-  findAll(user: any, userId: number) {
+  async findAll(user: any, userId: number) {
     if (user.id !== userId && user.role !== Role.ADMIN) {
       throw new ForbiddenException('You dont have access');
     }
-    return this.prismaService.deposit.findMany({where: { userId: userId }});
+    const deposits = await this.prismaService.deposit.findMany({
+      where: { userId: userId },
+    });
+    if (!deposits.length) throw new NotFoundException('No deposits found');
+    return deposits;
   }
 
   async getAmount(user: any, id: number) {
-    const deposit = await this.prismaService.deposit.findUnique({ where: { id } });
+    const deposit = await this.prismaService.deposit.findUnique({
+      where: { id },
+    });
     this.checkAccessToDeposit(deposit, user);
 
-    const decimalBalance: Decimal  = new Decimal(deposit.balance);
+    const decimalBalance: Decimal = new Decimal(deposit.balance);
     const decimalInterestRate: Decimal = new Decimal(deposit.interestRate);
-    const decimalInterest: Decimal = decimalBalance.times(decimalInterestRate).dividedBy(100);
+    const decimalInterest: Decimal = decimalBalance
+      .times(decimalInterestRate)
+      .dividedBy(100);
 
     const finalAmount: number = decimalBalance.plus(decimalInterest).toNumber();
     return `Deposit amount after interest(${deposit.interestRate}%) is accrued = ${finalAmount}${deposit.currency}`;
@@ -67,14 +75,19 @@ export class DepositService {
   }
 
   updateInterestRate(id: number, updateInterestDto: UpdateInterestDto) {
-    return this.prismaService.deposit.update({where: {id}, data: { interestRate: updateInterestDto.interestRate }});
+    return this.prismaService.deposit.update({
+      where: { id },
+      data: { interestRate: updateInterestDto.interestRate },
+    });
   }
 
-  async remove(id: number, reqUser:any) {
+  async remove(id: number, reqUser: any) {
     const user = await this.userService.findOne(reqUser.id);
     if (user.isBlocked) throw new ForbiddenException('You are blocked');
 
-    const deposit = await this.prismaService.deposit.findUnique({ where: { id } });
+    const deposit = await this.prismaService.deposit.findUnique({
+      where: { id },
+    });
     this.checkAccessToDeposit(deposit, reqUser);
     return this.prismaService.deposit.delete({ where: { id } });
   }

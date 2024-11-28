@@ -6,6 +6,6 @@ import { UserModule } from '../user/user.module';
 @Module({
   controllers: [DepositController],
   providers: [DepositService],
-  imports: [UserModule]
+  imports: [UserModule],
 })
 export class DepositModule {}

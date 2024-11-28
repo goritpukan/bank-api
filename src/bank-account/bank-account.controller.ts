@@ -14,7 +14,7 @@ import { AuthGuard } from '../guards/auth.guard';
 import { ApiCookieAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { CreateBankAccountDto } from './dto/create-bank-account.dto';
 import { Currency } from '@prisma/client';
-import {swaggerBankAccount} from '../config/swagger-params';
+import { swaggerBankAccount } from '../config/swagger-params';
 
 @Controller('account')
 export class BankAccountController {
@@ -64,7 +64,11 @@ export class BankAccountController {
     @Param('currency') currency: Currency,
     @Request() req: any,
   ) {
-    return this.bankAccountService.getBalance(accountNumber, currency, req.user);
+    return this.bankAccountService.getBalance(
+      accountNumber,
+      currency,
+      req.user,
+    );
   }
 
   @UseGuards(AuthGuard)

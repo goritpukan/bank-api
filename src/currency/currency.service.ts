@@ -7,7 +7,11 @@ import * as process from 'node:process';
 export class CurrencyService {
   constructor(private readonly httpService: HttpService) {}
 
-  async convert(baseCurrency: string, targetCurrency: string, amount: number):Promise<number> {
+  async convert(
+    baseCurrency: string,
+    targetCurrency: string,
+    amount: number,
+  ): Promise<number> {
     const apiUrl = `https://v6.exchangerate-api.com/v6/${process.env.CURRENCY_API_KEY}/pair/${baseCurrency}/${targetCurrency}`;
     const response = await lastValueFrom(
       this.httpService.get(apiUrl).pipe(map((res) => res.data)),

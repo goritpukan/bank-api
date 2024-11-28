@@ -26,7 +26,8 @@ export class TransactionService {
       createTransferDto.sourceAccountNumber,
       user,
     );
-    if(sourceAccount.isBlocked) throw new ForbiddenException("Account is blocked");
+    if (sourceAccount.isBlocked)
+      throw new ForbiddenException('Account is blocked');
     const destinationAccount = await this.prismaService.bankAccount.findUnique({
       where: { accountNumber: createTransferDto.destinationAccountNumber },
     });
@@ -106,7 +107,8 @@ export class TransactionService {
       accountNumber,
       user,
     );
-    if(bankAccount.isBlocked) throw new ForbiddenException("Account is blocked");
+    if (bankAccount.isBlocked)
+      throw new ForbiddenException('Account is blocked');
 
     const decimalBalance = new Decimal(bankAccount.balance);
     const decimalTransferAmount = new Decimal(
@@ -136,7 +138,7 @@ export class TransactionService {
     if (user.id != id && user.role !== Role.ADMIN) {
       throw new ForbiddenException('You dont have access');
     }
-    return this.prismaService.transaction.findMany({
+    const transactions = await this.prismaService.transaction.findMany({
       where: {
         OR: [
           {
@@ -166,5 +168,7 @@ export class TransactionService {
         },
       },
     });
+    if (!transactions.length)
+      throw new NotFoundException('No transactions found');
   }
 }

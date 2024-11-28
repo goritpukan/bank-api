@@ -237,16 +237,13 @@ describe('UserService', () => {
     };
 
     jest.spyOn(prismaService.user, 'update').mockRejectedValueOnce(
-      new Prisma.PrismaClientKnownRequestError(
-        'This email is already in use',
-        {
-          code: 'P2002',
-          meta: {
-            target: ['email'],
-          },
-          clientVersion: '4.5.0',
+      new Prisma.PrismaClientKnownRequestError('This email is already in use', {
+        code: 'P2002',
+        meta: {
+          target: ['email'],
         },
-      ),
+        clientVersion: '4.5.0',
+      }),
     );
 
     await expect(service.update(1, updateUserDto)).rejects.toThrowError(

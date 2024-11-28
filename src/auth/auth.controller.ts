@@ -12,15 +12,15 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        email: {type: 'string', example: 'user@example.com'},
-        password: {type: 'string', example: 'password'},
+        email: { type: 'string', example: 'user@example.com' },
+        password: { type: 'string', example: 'password' },
       },
-      required:['email', 'password'],
+      required: ['email', 'password'],
     },
   })
   @Post('signin')
   async signin(@Body() body, @Res() res: Response) {
-    return this.authService.signin(body.email, body.password, res)
+    return this.authService.signin(body.email, body.password, res);
   }
 
   @Post('signup')

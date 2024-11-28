@@ -31,9 +31,9 @@ export class DepositController {
   }
 
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'List of all user deposits'})
+  @ApiOperation({ summary: 'List of all user deposits' })
   @ApiCookieAuth('access_token')
-  @Get("/all/:id")
+  @Get('/all/:id')
   findAll(@Request() req: any, @Param('id') id: string) {
     return this.depositService.findAll(req.user, +id);
   }
@@ -41,9 +41,9 @@ export class DepositController {
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get deposit amount after interest is accrued.' })
   @ApiCookieAuth('access_token')
-  @Get(":id")
+  @Get(':id')
   getAmount(@Request() req: any, @Param('id') id: string) {
-    return this.depositService.getAmount(req.user, +id)
+    return this.depositService.getAmount(req.user, +id);
   }
 
   @UseGuards(AuthGuard)
@@ -59,10 +59,13 @@ export class DepositController {
     return this.depositService.update(+id, req.user, updateDepositDto);
   }
   @UseGuards(AuthGuard, AdminGuard)
-  @ApiOperation({summary: "Change deposit interest rate(only for admin)"})
+  @ApiOperation({ summary: 'Change deposit interest rate(only for admin)' })
   @ApiCookieAuth('access_token')
   @Patch('/interest/:id')
-  updateInterestRate(@Param('id') id: string, @Body() updateInterestDpo: UpdateInterestDto) {
+  updateInterestRate(
+    @Param('id') id: string,
+    @Body() updateInterestDpo: UpdateInterestDto,
+  ) {
     return this.depositService.updateInterestRate(+id, updateInterestDpo);
   }
 

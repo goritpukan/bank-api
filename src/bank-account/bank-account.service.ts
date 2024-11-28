@@ -48,33 +48,50 @@ export class BankAccountService {
   }
 
   async findOne(accountNumber: string, user: any) {
-    const account = await this.prisma.bankAccount.findUnique({ where: { accountNumber } });
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { accountNumber },
+    });
     this.checkAccessToAccount(account, user);
     return account;
   }
 
-  async getBalance(accountNumber: string, currency: Currency, user: any): Promise<string> {
-    const account = await this.prisma.bankAccount.findUnique({ where: { accountNumber } });
+  async getBalance(
+    accountNumber: string,
+    currency: Currency,
+    user: any,
+  ): Promise<string> {
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { accountNumber },
+    });
     this.checkAccessToAccount(account, user);
     if (!account) throw new NotFoundException('Account not found');
     if (account.currency === currency) {
       return `Balance of your account:(${account.accountNumber}) in ${currency} is ${account.balance} ${currency}`;
     }
-    const convertedBalance = await this.currencyService.convert(account.currency, currency, account.balance)
+    const convertedBalance = await this.currencyService.convert(
+      account.currency,
+      currency,
+      account.balance,
+    );
     return `Balance of your account:(${account.accountNumber}) in ${currency} is ${convertedBalance} ${currency}`;
   }
 
   async remove(accountNumber: string, user: any) {
     await this.checkUserBlock(user);
-    const account = await this.prisma.bankAccount.findUnique({ where: { accountNumber } });
-    if(account.isBlocked) throw new ForbiddenException('Account is blocked');
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { accountNumber },
+    });
+    if (!account) throw new NotFoundException('Account not found');
+    if (account.isBlocked) throw new ForbiddenException('Account is blocked');
     this.checkAccessToAccount(account, user);
     return this.prisma.bankAccount.delete({ where: { accountNumber } });
   }
 
   async block(accountNumber: string, user: any) {
     await this.checkUserBlock(user);
-    const account = await this.prisma.bankAccount.findUnique({ where: { accountNumber } });
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { accountNumber },
+    });
     this.checkAccessToAccount(account, user);
     return this.prisma.bankAccount.update({
       where: { accountNumber },
@@ -84,7 +101,9 @@ export class BankAccountService {
 
   async unblock(accountNumber: string, user: any) {
     await this.checkUserBlock(user);
-    const account = await this.prisma.bankAccount.findUnique({ where: { accountNumber } });
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { accountNumber },
+    });
     this.checkAccessToAccount(account, user);
     return this.prisma.bankAccount.update({
       where: { accountNumber },

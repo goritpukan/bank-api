@@ -20,11 +20,11 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         });
         break;
       }
-      case "P2025": {
+      case 'P2025': {
         const status = HttpStatus.NOT_FOUND;
         response.status(status).json({
           statusCode: status,
-          message: "Not found",
+          message: 'Not found',
         });
         break;
       }
@@ -34,7 +34,9 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
     }
   }
   private getDuplicatedField(errorMessage: string): string | null {
-    const match = errorMessage.match(/Unique constraint failed on the fields: \(`(\w+)`\)/);
+    const match = errorMessage.match(
+      /Unique constraint failed on the fields: \(`(\w+)`\)/,
+    );
     return match ? match[1] : null;
   }
 }

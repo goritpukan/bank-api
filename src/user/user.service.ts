@@ -14,10 +14,17 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const data = plainToClass(CreateUserDto, createUserDto);
     const saltOrRounds = 10;
-    data.password = await bcrypt.hash(data.password, saltOrRounds);
-    return this.prisma.user.create({ data });
+    const password: string = await bcrypt.hash(
+      createUserDto.password,
+      saltOrRounds,
+    );
+    return this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password,
+      },
+    });
   }
 
   async findAll() {
@@ -56,13 +63,13 @@ export class UserService {
   block(id: number) {
     return this.prisma.user.update({
       where: { id },
-      data: {isBlocked: true },
+      data: { isBlocked: true },
     });
   }
   unblock(id: number) {
     return this.prisma.user.update({
       where: { id },
-      data: {isBlocked: false },
+      data: { isBlocked: false },
     });
   }
 }
